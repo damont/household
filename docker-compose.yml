@@ -1,0 +1,27 @@
+services:
+  household-api:
+    build:
+      context: .
+      target: backend
+    ports:
+      - "8020:8020"
+    environment:
+      - MONGODB_URL=mongodb://host.docker.internal:27017
+      - MONGODB_DB_NAME=household
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-production}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - REFRESH_INTERVAL_SECONDS=${REFRESH_INTERVAL_SECONDS:-300}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  household-frontend:
+    build:
+      context: .
+      target: frontend
+    ports:
+      - "8095:80"
+    depends_on:
+      - household-api
+    restart: unless-stopped
